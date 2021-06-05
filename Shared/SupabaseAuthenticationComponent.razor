@@ -1,0 +1,41 @@
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using BlazorToDoList.Data
+@using BlazorToDoList.Services
+@inject Authentication _authentication
+
+<div>
+   <button @onclick="@SetToLogin">Login</button> 
+</div>
+<div>
+    <button @onclick="@SetToRegister">Register</button> 
+</div>
+
+
+@if (_pageState == PageState.Login)
+{
+    if (_currentLoginState == LoginState.Waiting)
+    {
+        <EditForm Model="@_userLogin" OnValidSubmit="@HandleValidLoginSubmit">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+            <InputText id="email" @bind-Value="@_userLogin.Email"/>
+            <InputText type="password" id="password" @bind-Value="@_userLogin.Password"/>
+            <button type="submit" class="btn btn-primary">Sign In</button>
+        </EditForm>
+    }
+    else if (_currentLoginState == LoginState.Authenticating)
+    {
+        <div>Authenticating</div>
+    }
+}
+else
+{
+    <EditForm Model="@_userLogin" OnValidSubmit="@HandleValidRegSubmit">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+        <InputText id="email" @bind-Value="@_userLogin.Email"/>
+        <InputText type="password" id="password" @bind-Value="@_userLogin.Password"/>
+        <button type="submit" class="btn btn-primary">Register</button>
+    </EditForm>
+}

@@ -1,0 +1,11 @@
+﻿@page "/"
+
+@if (_currentApplicationState == ApplicationState.SignedOut)
+{
+    <SupabaseAuthenticationComponent OnUserLoggedIn="@OnUserLoggedIn"/>
+}
+else
+{
+    <button @onclick="@OnUserLoggedOut">Sign Out</button>
+    <ToDoComponent LoginContext="@LoginContext"/>
+}
