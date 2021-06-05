@@ -19,7 +19,7 @@ namespace BlazorToDoList.Services
                 RequestUri = new Uri($"{SupabaseConfig.Url}auth/v1/signup"),
                 Headers =
                 {
-                    { "apikey", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTYyMjg4MjMyOCwiZXhwIjoxOTM4NDU4MzI4fQ.k5YAgmxJXpDigHaOVVGBxDuFIWIeb6bAc95DAnZPfts" },
+                    { "apikey", $"{SupabaseConfig.ApiKey}" },
                 },
                 Content = new StringContent($"{{\n  \"email\": \"{username}\",\n  \"password\": \"{password}\"\n}}")
                 {

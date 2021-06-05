@@ -16,7 +16,7 @@ namespace BlazorToDoList
 
             builder.Services.AddOptions();
             builder.Services.AddTransient<Authentication>();
-            builder.Services.AddTransient<ToDoService>();
+            builder.Services.AddTransient<IToDoService, ToDoService>();
             builder.Services.AddTransient<LocalStorage>();
 
             builder.Services.AddScoped(

@@ -9,7 +9,7 @@ namespace BlazorToDoList.Shared
     {
         [Parameter] public LoginContext LoginContext { get; set; }
 
-        private List<ToDoItem> ToDoItems;
+        private List<ToDoItem> _toDoItems;
 
         private readonly ToDoItem _toDoItem = new();
 
@@ -20,19 +20,19 @@ namespace BlazorToDoList.Shared
 
         private async Task HandleValidSubmit()
         {
-            await _toDoService.InsertToDoAsync(LoginContext, _toDoItem);
+            await _toDoService.InsertToDoAsync(_toDoItem);
             await GetAllToDosAsync();
         }
 
         private async Task GetAllToDosAsync()
         {
-            ToDoItems = await _toDoService.GetAllToDosAsync(LoginContext);
+            _toDoItems = await _toDoService.GetAllToDosAsync();
             await InvokeAsync(StateHasChanged);
         }
 
         private async Task MarkAsComplete(int id)
         {
-            await _toDoService.MarkAsCompleteAsync(LoginContext, id);
+            await _toDoService.MarkAsCompleteAsync(id);
             await GetAllToDosAsync();
         }
     }

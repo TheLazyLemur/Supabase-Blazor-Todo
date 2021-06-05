@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using System.Threading.Tasks;
 using BlazorToDoList.Data;
 using BlazorToDoList.Services;
@@ -11,11 +12,8 @@ namespace BlazorToDoList.Shared
     {
         protected internal class UserLogin
         {
-            [Required]
-            [EmailAddress]
-            public string Email { get; set; }
-            [Required]
-            public string Password { get; set; }
+            [Required] [EmailAddress] public string Email { get; set; }
+            [Required] public string Password { get; set; }
         }
 
         private UserLogin _userLogin = new();
@@ -64,6 +62,8 @@ namespace BlazorToDoList.Shared
         {
             _currentLoginState = LoginState.Authenticating;
             var loginContext = await _authentication.LoginAsync(_userLogin.Email, _userLogin.Password);
+            var jsonContext = JsonSerializer.Serialize(loginContext);
+            await ProtectedLocalStorage.SetAsync("loginContext", jsonContext);
 
             if (_rememberMe)
             {

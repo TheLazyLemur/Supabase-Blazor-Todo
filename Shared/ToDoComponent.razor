@@ -1,6 +1,6 @@
 @using BlazorToDoList.Data
 @using BlazorToDoList.Services
-@inject ToDoService _toDoService
+@inject IToDoService _toDoService
 
 
 <EditForm Model="@_toDoItem" OnValidSubmit="@HandleValidSubmit">
@@ -11,22 +11,22 @@
     <button type="submit" class="btn btn-primary">Add Task</button>
 </EditForm>
 
-@if (ToDoItems is null)
+@if (_toDoItems is null)
 {
     <div>Your Todo List is Empty!</div>
 }
 else
 {
-    if (ToDoItems.Any())
+    if (_toDoItems.Any())
     {
         <h2>Not Completed</h2>
-        foreach (var toDoItem in ToDoItems.Where(item => item.IsComplete is false))
+        foreach (var toDoItem in _toDoItems.Where(item => item.IsComplete is false))
         {
             <div @onclick="@(() => MarkAsComplete(toDoItem.Id))">@toDoItem.Task</div>
         }
         
         <h2>Completed</h2>
-        foreach (var toDoItem in ToDoItems.Where(item => item.IsComplete))
+        foreach (var toDoItem in _toDoItems.Where(item => item.IsComplete))
         {
             <div>@toDoItem.Task</div>
         }

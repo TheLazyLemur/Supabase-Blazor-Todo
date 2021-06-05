@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
@@ -21,6 +22,12 @@ namespace BlazorToDoList.Services
         public async Task<string> GetAsync(string key)
         {
             return await JsRuntime.InvokeAsync<string>("localStorage.getItem", key);
+        }
+        
+        public async Task<T> GetAsync<T>(string key)
+        {
+            var raw = await JsRuntime.InvokeAsync<string>("localStorage.getItem", key);
+            return JsonSerializer.Deserialize<T>(raw);
         }
 
         public async Task RemoveAsync(string key)

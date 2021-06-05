@@ -6,13 +6,30 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using BlazorToDoList.Data;
 using BlazorToDoList.Settings;
+using Microsoft.AspNetCore.Components;
 
 namespace BlazorToDoList.Services
 {
-    public class ToDoService
+    public interface IToDoService
     {
-        public async Task<List<ToDoItem>> GetAllToDosAsync(LoginContext loginContext)
+        Task<List<ToDoItem>> GetAllToDosAsync();
+        Task InsertToDoAsync(ToDoItem toDoItem);
+        Task MarkAsCompleteAsync(int id);
+    }
+
+    public class ToDoService : IToDoService
+    {
+        private readonly LocalStorage ProtectedLocalStorage;
+
+        public ToDoService(LocalStorage localStorage)
         {
+            ProtectedLocalStorage = localStorage;
+        }
+
+        public async Task<List<ToDoItem>> GetAllToDosAsync()
+        {
+            var loginContext = await ProtectedLocalStorage.GetAsync<LoginContext>("loginContext");
+
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
@@ -20,8 +37,8 @@ namespace BlazorToDoList.Services
                 RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos?select=*"),
                 Headers =
                 {
-                    { "apikey", $"{SupabaseConfig.ApiKey}" },
-                    { "Authorization", $"Bearer {loginContext.AccessToken}" },
+                    {"apikey", $"{SupabaseConfig.ApiKey}"},
+                    {"Authorization", $"Bearer {loginContext?.AccessToken}"},
                 },
             };
             using (var response = await client.SendAsync(request))
@@ -37,11 +54,12 @@ namespace BlazorToDoList.Services
             }
         }
 
-        public async Task InsertToDoAsync(LoginContext loginContext, ToDoItem toDoItem)
+        public async Task InsertToDoAsync(ToDoItem toDoItem)
         {
+            var loginContext = await ProtectedLocalStorage.GetAsync<LoginContext>("loginContext");
             try
             {
-                Console.WriteLine(loginContext.AccessToken);
+                Console.WriteLine(loginContext?.AccessToken);
                 var client = new HttpClient();
                 var request = new HttpRequestMessage
                 {
@@ -55,12 +73,12 @@ namespace BlazorToDoList.Services
                         },
                         {
                             "Authorization",
-                            $"Bearer {loginContext.AccessToken}"
+                            $"Bearer {loginContext?.AccessToken}"
                         },
                         {"Prefer", "return=representation"},
                     },
                     Content = new StringContent(
-                        $"{{ \n\t\"user_id\": \"{loginContext.User.Id}\",\n\t\"task\": \"{toDoItem.Task}\", \n\t\"is_complete\": {toDoItem.IsComplete.ToString().ToLower()} \n}}")
+                        $"{{ \n\t\"user_id\": \"{loginContext?.User.Id}\",\n\t\"task\": \"{toDoItem.Task}\", \n\t\"is_complete\": {toDoItem.IsComplete.ToString().ToLower()} \n}}")
                     {
                         Headers =
                         {
@@ -81,8 +99,10 @@ namespace BlazorToDoList.Services
             }
         }
 
-        public async Task MarkAsCompleteAsync(LoginContext loginContext, int id)
+        public async Task MarkAsCompleteAsync(int id)
         {
+            var loginContext = await ProtectedLocalStorage.GetAsync<LoginContext>("loginContext");
+            
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
@@ -90,9 +110,9 @@ namespace BlazorToDoList.Services
                 RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos?id=eq.{id}"),
                 Headers =
                 {
-                    { "apikey", $"{SupabaseConfig.ApiKey}" },
-                    { "Authorization", $"Bearer {loginContext.AccessToken}" },
-                    { "Prefer", "return=representation" },
+                    {"apikey", $"{SupabaseConfig.ApiKey}"},
+                    {"Authorization", $"Bearer {loginContext?.AccessToken}"},
+                    {"Prefer", "return=representation"},
                 },
                 Content = new StringContent("{ \n\t\"is_complete\": true \n}")
                 {
