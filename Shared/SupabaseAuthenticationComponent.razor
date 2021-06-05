@@ -4,12 +4,6 @@
 @using BlazorToDoList.Services
 @inject Authentication _authentication
 
-<div>
-   <button @onclick="@SetToLogin">Login</button> 
-</div>
-<div>
-    <button @onclick="@SetToRegister">Register</button> 
-</div>
 
 
 @if (_pageState == PageState.Login)
@@ -17,11 +11,33 @@
     if (_currentLoginState == LoginState.Waiting)
     {
         <EditForm Model="@_userLogin" OnValidSubmit="@HandleValidLoginSubmit">
-            <DataAnnotationsValidator/>
-            <ValidationSummary/>
-            <InputText id="email" @bind-Value="@_userLogin.Email"/>
-            <InputText type="password" id="password" @bind-Value="@_userLogin.Password"/>
-            <button type="submit" class="btn btn-primary">Sign In</button>
+            <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+                <div class="mb-4 mt-4">
+                    <label class="block text-grey-800 text-sm font-bold mb-2" for="username">
+                        Email
+                    </label>
+                    <InputText class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker" id="email" @bind-Value="@_userLogin.Email"/>
+                </div>
+                <div class="mb-6">
+                    <label class="block text-grey-800 text-sm font-bold mb-2" for="password">
+                        Password
+                    </label>
+                    <InputText class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-800 mb-3" type="password" id="password" @bind-Value="@_userLogin.Password"/>
+                </div>
+                <div class="flex items-center justify-between">
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded">Sign In</button>
+                </div>
+                <div class="flex gap-4 mt-5">
+                    <div>
+                        <button @onclick="@SetToLogin">Login</button>
+                    </div>
+                    <div>
+                        <button @onclick="@SetToRegister">Register</button>
+                    </div>
+                </div>
+            </div>
         </EditForm>
     }
     else if (_currentLoginState == LoginState.Authenticating)
@@ -32,10 +48,32 @@
 else
 {
     <EditForm Model="@_userLogin" OnValidSubmit="@HandleValidRegSubmit">
-        <DataAnnotationsValidator/>
-        <ValidationSummary/>
-        <InputText id="email" @bind-Value="@_userLogin.Email"/>
-        <InputText type="password" id="password" @bind-Value="@_userLogin.Password"/>
-        <button type="submit" class="btn btn-primary">Register</button>
+        <div class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4 flex flex-col">
+            <DataAnnotationsValidator/>
+            <ValidationSummary/>
+            <div class="mb-4 mt-4">
+                <label class="block text-grey-800 text-sm font-bold mb-2" for="username">
+                    Email
+                </label>
+                <InputText class="shadow appearance-none border rounded w-full py-2 px-3 text-grey-darker" id="email" @bind-Value="@_userLogin.Email"/>
+            </div>
+            <div class="mb-6">
+                <label class="block text-grey-800 text-sm font-bold mb-2" for="password">
+                    Password
+                </label>
+                <InputText class="shadow appearance-none border border-red rounded w-full py-2 px-3 text-grey-800 mb-3" type="password" id="password" @bind-Value="@_userLogin.Password"/>
+            </div>
+            <div class="flex items-center justify-between">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-dark text-white font-bold py-2 px-4 rounded">Register</button>
+            </div>
+            <div class="flex gap-4 mt-5">
+                <div>
+                    <button @onclick="@SetToLogin">Login</button>
+                </div>
+                <div>
+                    <button @onclick="@SetToRegister">Register</button>
+                </div>
+            </div>
+        </div>
     </EditForm>
 }

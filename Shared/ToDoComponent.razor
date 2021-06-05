@@ -3,32 +3,41 @@
 @inject IToDoService _toDoService
 
 
-<EditForm Model="@_toDoItem" OnValidSubmit="@HandleValidSubmit">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
-    <InputText id="email" @bind-Value="@_toDoItem.Task"/>
-    <br>
-    <button type="submit" class="btn btn-primary">Add Task</button>
-</EditForm>
+<div class="h-100 w-full flex items-center justify-center font-sans">
+    <div class="bg-white rounded shadow p-6 m-4 w-full">
+        <div class="mb-4">
+            <h1 class="text-grey-800">Todo List</h1>
+            <EditForm Model="@_toDoItem" OnValidSubmit="@HandleValidSubmit">
+                <DataAnnotationsValidator/>
+                <ValidationSummary/>
+                <div class="flex mt-4">
+                    <br>
+                    <InputText class="shadow appearance-none border rounded w-full py-2 px-3 mr-4 text-grey-darker" id="todo" @bind-Value="@_toDoItem.Task"/>
+                    <button type="submit" class="flex-no-shrink p-2 border-2 rounded text-blue-500 border-blue-500 hover:text-white hover:bg-blue-500">Add</button>
+                </div>
+            </EditForm>
+        </div>
+        <div>
 
-@if (_toDoItems is null)
-{
-    <div>Your Todo List is Empty!</div>
-}
-else
-{
-    if (_toDoItems.Any())
-    {
-        <h2>Not Completed</h2>
-        foreach (var toDoItem in _toDoItems.Where(item => item.IsComplete is false))
-        {
-            <div @onclick="@(() => MarkAsComplete(toDoItem.Id))">@toDoItem.Task</div>
-        }
-        
-        <h2>Completed</h2>
-        foreach (var toDoItem in _toDoItems.Where(item => item.IsComplete))
-        {
-            <div>@toDoItem.Task</div>
-        }
-    }
-}
+            @if (_toDoItems is null)
+            {
+                <div>Your Todo List is Empty!</div>
+            }
+            else
+            {
+                if (_toDoItems.Any())
+                {
+                    foreach (var toDoItem in _toDoItems)
+                    {
+                        <div class="flex mb-4 items-center">
+                            <p class="w-full text-grey-darkest @(toDoItem.IsComplete ? "line-through" : "")">@toDoItem.Task</p>
+                            <button @onclick="@(() => MarkAsComplete(toDoItem.Id))" class="flex-no-shrink p-2 ml-4 mr-2 border-2 rounded hover:text-white text-green-500 border-green-500 hover:bg-green-500">Done</button>
+                            <button @onclick="@(() => Delete(toDoItem.Id))" class="flex-no-shrink p-2 ml-2 border-2 rounded text-red-500 border-red-500 hover:text-white hover:bg-red-500">Remove</button>
+                        </div>
+                    }
+                }
+            }
+
+        </div>
+    </div>
+</div>

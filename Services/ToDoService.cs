@@ -15,6 +15,7 @@ namespace BlazorToDoList.Services
         Task<List<ToDoItem>> GetAllToDosAsync();
         Task InsertToDoAsync(ToDoItem toDoItem);
         Task MarkAsCompleteAsync(int id);
+        public Task DeleteAsync(int id);
     }
 
     public class ToDoService : IToDoService
@@ -121,6 +122,28 @@ namespace BlazorToDoList.Services
                         ContentType = new MediaTypeHeaderValue("application/json")
                     }
                 }
+            };
+            using (var response = await client.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
+                Console.WriteLine(body);
+            }
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var loginContext = await ProtectedLocalStorage.GetAsync<LoginContext>("loginContext");
+            var client = new HttpClient();
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Delete,
+                RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos?id=eq.{id}"),
+                Headers =
+                {
+                    { "apikey", SupabaseConfig.ApiKey },
+                    { "Authorization", $"Bearer {loginContext.AccessToken}" },
+                },
             };
             using (var response = await client.SendAsync(request))
             {

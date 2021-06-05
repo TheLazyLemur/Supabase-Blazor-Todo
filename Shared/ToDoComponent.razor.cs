@@ -35,5 +35,11 @@ namespace BlazorToDoList.Shared
             await _toDoService.MarkAsCompleteAsync(id);
             await GetAllToDosAsync();
         }
+        
+        private async Task Delete(int id)
+        {
+            await _toDoService.DeleteAsync(id);
+            await GetAllToDosAsync();
+        }
     }
 }
