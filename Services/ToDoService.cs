@@ -20,46 +20,42 @@ namespace BlazorToDoList.Services
 
     public class ToDoService : IToDoService
     {
-        private readonly LocalStorage _protectedLocalStorage;
-        private readonly SupabaseConfig _supabaseConfig;
+        private readonly LocalStorage _localStorage;
 
-        public ToDoService(LocalStorage localStorage, SupabaseConfig supabaseConfig)
+        public ToDoService(LocalStorage localStorage)
         {
-            _protectedLocalStorage = localStorage;
-            _supabaseConfig = supabaseConfig;
+            this._localStorage = localStorage;
         }
 
         public async Task<List<ToDoItem>> GetAllToDosAsync()
         {
-            var loginContext = await _protectedLocalStorage.GetAsync<LoginContext>("loginContext");
+            var loginContext = await _localStorage.GetAsync<LoginContext>("loginContext");
 
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{_supabaseConfig.GetUrl()}rest/v1/todos?select=*"),
+                RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos?select=*"),
                 Headers =
                 {
-                    {"apikey", $"{_supabaseConfig.GetApiKey()}"},
+                    {"apikey", $"{SupabaseConfig.ApiKey}"},
                     {"Authorization", $"Bearer {loginContext?.AccessToken}"},
                 },
             };
-            using (var response = await client.SendAsync(request))
+            using var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+            var body = await response.Content.ReadAsStringAsync();
+            var options = new JsonSerializerOptions
             {
-                response.EnsureSuccessStatusCode();
-                var body = await response.Content.ReadAsStringAsync();
-                var options = new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                };
-                var items = JsonSerializer.Deserialize<List<ToDoItem>>(body, options);
-                return items;
-            }
+                PropertyNameCaseInsensitive = true
+            };
+            var items = JsonSerializer.Deserialize<List<ToDoItem>>(body, options);
+            return items;
         }
 
         public async Task InsertToDoAsync(ToDoItem toDoItem)
         {
-            var loginContext = await _protectedLocalStorage.GetAsync<LoginContext>("loginContext");
+            var loginContext = await _localStorage.GetAsync<LoginContext>("loginContext");
             try
             {
                 Console.WriteLine(loginContext?.AccessToken);
@@ -67,12 +63,12 @@ namespace BlazorToDoList.Services
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Post,
-                    RequestUri = new Uri($"{_supabaseConfig.GetUrl()}rest/v1/todos"),
+                    RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos"),
                     Headers =
                     {
                         {
                             "apikey",
-                            $"{_supabaseConfig.GetApiKey()}"
+                            $"{SupabaseConfig.ApiKey}"
                         },
                         {
                             "Authorization",
@@ -104,16 +100,16 @@ namespace BlazorToDoList.Services
 
         public async Task MarkAsCompleteAsync(int id)
         {
-            var loginContext = await _protectedLocalStorage.GetAsync<LoginContext>("loginContext");
+            var loginContext = await _localStorage.GetAsync<LoginContext>("loginContext");
             
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Patch,
-                RequestUri = new Uri($"{_supabaseConfig.GetUrl()}rest/v1/todos?id=eq.{id}"),
+                RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos?id=eq.{id}"),
                 Headers =
                 {
-                    {"apikey", $"{_supabaseConfig.GetApiKey()}"},
+                    {"apikey", $"{SupabaseConfig.ApiKey}"},
                     {"Authorization", $"Bearer {loginContext?.AccessToken}"},
                     {"Prefer", "return=representation"},
                 },
@@ -135,15 +131,15 @@ namespace BlazorToDoList.Services
 
         public async Task DeleteAsync(int id)
         {
-            var loginContext = await _protectedLocalStorage.GetAsync<LoginContext>("loginContext");
+            var loginContext = await _localStorage.GetAsync<LoginContext>("loginContext");
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Delete,
-                RequestUri = new Uri($"{_supabaseConfig.GetUrl()}rest/v1/todos?id=eq.{id}"),
+                RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos?id=eq.{id}"),
                 Headers =
                 {
-                    { "apikey", await _supabaseConfig.GetApiKey() },
+                    { "apikey", SupabaseConfig.ApiKey },
                     { "Authorization", $"Bearer {loginContext.AccessToken}" },
                 },
             };

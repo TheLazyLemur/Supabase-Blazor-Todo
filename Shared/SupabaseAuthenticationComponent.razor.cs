@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using System.Threading.Tasks;
 using BlazorToDoList.Data;
+using BlazorToDoList.Extensions;
 using BlazorToDoList.Services;
 using Microsoft.AspNetCore.Components;
 
@@ -21,7 +22,7 @@ namespace BlazorToDoList.Shared
 
         [Parameter] public EventCallback<LoginContext> OnUserLoggedIn { get; set; }
 
-        [Inject] public LocalStorage ProtectedLocalStorage { get; set; }
+        [Inject] public LocalStorage LocalStorage { get; set; }
 
         private enum LoginState
         {
@@ -42,8 +43,12 @@ namespace BlazorToDoList.Shared
 
         protected override async Task OnInitializedAsync()
         {
-            var storedEmail = await ProtectedLocalStorage.GetAsync("email");
-            var storedPassword = await ProtectedLocalStorage.GetAsync("password");
+            var storedCreds = await LocalStorage.GetAsync("email&password");
+            
+            if(string.IsNullOrEmpty(storedCreds)) return;
+            
+            var storedEmail = storedCreds.DecodeBase64().Split(":")[0];
+            var storedPassword = storedCreds.DecodeBase64().Split(":")[1];
 
             if (!string.IsNullOrEmpty(storedEmail) && !string.IsNullOrEmpty(storedPassword))
             {
@@ -63,12 +68,12 @@ namespace BlazorToDoList.Shared
             _currentLoginState = LoginState.Authenticating;
             var loginContext = await _authentication.LoginAsync(_userLogin.Email, _userLogin.Password);
             var jsonContext = JsonSerializer.Serialize(loginContext);
-            await ProtectedLocalStorage.SetAsync("loginContext", jsonContext);
+            await LocalStorage.SetAsync("loginContext", jsonContext);
 
             if (_rememberMe)
             {
-                await ProtectedLocalStorage.SetAsync("email", _userLogin.Email);
-                await ProtectedLocalStorage.SetAsync("password", _userLogin.Password);
+                await LocalStorage.SetAsync("email&password",
+                    $"{_userLogin.Email}:{_userLogin.Password}".EncodeBase64());
             }
 
             await OnUserLoggedIn.InvokeAsync(loginContext);

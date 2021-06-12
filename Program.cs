@@ -19,7 +19,6 @@ namespace BlazorToDoList
             builder.Services.AddTransient<LocalStorage>();
             builder.Services.AddTransient<Authentication>();
             builder.Services.AddTransient<IToDoService, ToDoService>();
-            builder.Services.AddSingleton<ISupabaseConfig, SupabaseConfig>();
 
             builder.Services.AddScoped(
                 sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});
