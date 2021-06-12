@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
@@ -14,6 +15,7 @@ namespace BlazorToDoList.Settings
 
         public async Task<string> GetApiKey()
         {
+            Console.WriteLine(await _jsRuntime.InvokeAsync<string>("process.env.Supabase_Key"));
             return await _jsRuntime.InvokeAsync<string>("process.env.Supabase_Key");
         }
 
