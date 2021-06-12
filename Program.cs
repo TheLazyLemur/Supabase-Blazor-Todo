@@ -2,6 +2,7 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using BlazorToDoList.Services;
+using BlazorToDoList.Settings;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,9 +16,10 @@ namespace BlazorToDoList
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddOptions();
+            builder.Services.AddTransient<LocalStorage>();
             builder.Services.AddTransient<Authentication>();
             builder.Services.AddTransient<IToDoService, ToDoService>();
-            builder.Services.AddTransient<LocalStorage>();
+            builder.Services.AddSingleton<ISupabaseConfig, SupabaseConfig>();
 
             builder.Services.AddScoped(
                 sp => new HttpClient {BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)});

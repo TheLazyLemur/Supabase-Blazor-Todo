@@ -10,16 +10,23 @@ namespace BlazorToDoList.Services
 {
     public class Authentication
     {
+        private readonly ISupabaseConfig _supabaseConfig;
+
+        public Authentication(ISupabaseConfig supabaseConfig)
+        {
+            _supabaseConfig = supabaseConfig;
+        }
+        
         public async Task<LoginContext> Register(string username, string password)
         {
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Post,
-                RequestUri = new Uri($"{SupabaseConfig.Url}auth/v1/signup"),
+                RequestUri = new Uri($"{_supabaseConfig.GetUrl()}auth/v1/signup"),
                 Headers =
                 {
-                    { "apikey", $"{SupabaseConfig.ApiKey}" },
+                    { "apikey", $"{_supabaseConfig.GetApiKey()}" },
                 },
                 Content = new StringContent($"{{\n  \"email\": \"{username}\",\n  \"password\": \"{password}\"\n}}")
                 {
@@ -44,12 +51,12 @@ namespace BlazorToDoList.Services
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Post,
-                    RequestUri = new Uri($"{SupabaseConfig.Url}auth/v1/token?grant_type=password"),
+                    RequestUri = new Uri($"{_supabaseConfig.GetUrl()}auth/v1/token?grant_type=password"),
                     Headers =
                     {
                         {
                             "apikey",
-                            SupabaseConfig.ApiKey
+                           await _supabaseConfig.GetApiKey()
                         },
                     },
                     Content = new StringContent(

@@ -1,8 +1,25 @@
+using System.Threading.Tasks;
+using Microsoft.JSInterop;
+
 namespace BlazorToDoList.Settings
 {
-    public static class SupabaseConfig
+    public class SupabaseConfig : ISupabaseConfig
     {
-        public static string Url = "supabase endpoint";
-        public static string ApiKey = "supabase key";
+        private readonly IJSRuntime _jsRuntime;
+
+        public SupabaseConfig(IJSRuntime jsRuntime)
+        {
+            _jsRuntime = jsRuntime;
+        }
+
+        public async Task<string> GetApiKey()
+        {
+            return await _jsRuntime.InvokeAsync<string>("process.env.Supabase_Key");
+        }
+
+        public async Task<string> GetUrl()
+        {
+            return await _jsRuntime.InvokeAsync<string>("process.env.Supabase_Endpoint");
+        }
     }
 }

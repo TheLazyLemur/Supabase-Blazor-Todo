@@ -20,25 +20,27 @@ namespace BlazorToDoList.Services
 
     public class ToDoService : IToDoService
     {
-        private readonly LocalStorage ProtectedLocalStorage;
+        private readonly LocalStorage _protectedLocalStorage;
+        private readonly SupabaseConfig _supabaseConfig;
 
-        public ToDoService(LocalStorage localStorage)
+        public ToDoService(LocalStorage localStorage, SupabaseConfig supabaseConfig)
         {
-            ProtectedLocalStorage = localStorage;
+            _protectedLocalStorage = localStorage;
+            _supabaseConfig = supabaseConfig;
         }
 
         public async Task<List<ToDoItem>> GetAllToDosAsync()
         {
-            var loginContext = await ProtectedLocalStorage.GetAsync<LoginContext>("loginContext");
+            var loginContext = await _protectedLocalStorage.GetAsync<LoginContext>("loginContext");
 
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Get,
-                RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos?select=*"),
+                RequestUri = new Uri($"{_supabaseConfig.GetUrl()}rest/v1/todos?select=*"),
                 Headers =
                 {
-                    {"apikey", $"{SupabaseConfig.ApiKey}"},
+                    {"apikey", $"{_supabaseConfig.GetApiKey()}"},
                     {"Authorization", $"Bearer {loginContext?.AccessToken}"},
                 },
             };
@@ -57,7 +59,7 @@ namespace BlazorToDoList.Services
 
         public async Task InsertToDoAsync(ToDoItem toDoItem)
         {
-            var loginContext = await ProtectedLocalStorage.GetAsync<LoginContext>("loginContext");
+            var loginContext = await _protectedLocalStorage.GetAsync<LoginContext>("loginContext");
             try
             {
                 Console.WriteLine(loginContext?.AccessToken);
@@ -65,12 +67,12 @@ namespace BlazorToDoList.Services
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Post,
-                    RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos"),
+                    RequestUri = new Uri($"{_supabaseConfig.GetUrl()}rest/v1/todos"),
                     Headers =
                     {
                         {
                             "apikey",
-                            $"{SupabaseConfig.ApiKey}"
+                            $"{_supabaseConfig.GetApiKey()}"
                         },
                         {
                             "Authorization",
@@ -102,16 +104,16 @@ namespace BlazorToDoList.Services
 
         public async Task MarkAsCompleteAsync(int id)
         {
-            var loginContext = await ProtectedLocalStorage.GetAsync<LoginContext>("loginContext");
+            var loginContext = await _protectedLocalStorage.GetAsync<LoginContext>("loginContext");
             
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Patch,
-                RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos?id=eq.{id}"),
+                RequestUri = new Uri($"{_supabaseConfig.GetUrl()}rest/v1/todos?id=eq.{id}"),
                 Headers =
                 {
-                    {"apikey", $"{SupabaseConfig.ApiKey}"},
+                    {"apikey", $"{_supabaseConfig.GetApiKey()}"},
                     {"Authorization", $"Bearer {loginContext?.AccessToken}"},
                     {"Prefer", "return=representation"},
                 },
@@ -133,15 +135,15 @@ namespace BlazorToDoList.Services
 
         public async Task DeleteAsync(int id)
         {
-            var loginContext = await ProtectedLocalStorage.GetAsync<LoginContext>("loginContext");
+            var loginContext = await _protectedLocalStorage.GetAsync<LoginContext>("loginContext");
             var client = new HttpClient();
             var request = new HttpRequestMessage
             {
                 Method = HttpMethod.Delete,
-                RequestUri = new Uri($"{SupabaseConfig.Url}rest/v1/todos?id=eq.{id}"),
+                RequestUri = new Uri($"{_supabaseConfig.GetUrl()}rest/v1/todos?id=eq.{id}"),
                 Headers =
                 {
-                    { "apikey", SupabaseConfig.ApiKey },
+                    { "apikey", await _supabaseConfig.GetApiKey() },
                     { "Authorization", $"Bearer {loginContext.AccessToken}" },
                 },
             };
