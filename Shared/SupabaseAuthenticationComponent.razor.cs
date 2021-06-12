@@ -46,9 +46,10 @@ namespace BlazorToDoList.Shared
             var storedCreds = await LocalStorage.GetAsync("email&password");
             
             if(string.IsNullOrEmpty(storedCreds)) return;
-            
-            var storedEmail = storedCreds.DecodeBase64().Split(":")[0];
-            var storedPassword = storedCreds.DecodeBase64().Split(":")[1];
+
+            var emailAndPassword = storedCreds.DecodeBase64().Split(":");
+            var storedEmail = emailAndPassword[0];
+            var storedPassword = emailAndPassword[1];
 
             if (!string.IsNullOrEmpty(storedEmail) && !string.IsNullOrEmpty(storedPassword))
             {
